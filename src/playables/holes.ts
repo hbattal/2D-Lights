@@ -1,0 +1,99 @@
+import * as THREE from "three";
+import { Playable } from "./playable";
+import { sampleVideo } from "./pShaders/sample";
+
+export class Holes extends Playable {
+    circles: { mesh: THREE.Mesh }[];
+    videoTexture: THREE.Texture | null;
+
+    mesh: THREE.InstancedMesh;
+    volMesh: THREE.InstancedMesh;
+
+    material: THREE.ShaderMaterial;
+    volMaterial: THREE.MeshBasicMaterial;
+
+    constructor(width: number, height: number) {
+        super(width, height);
+
+        this.circles = [];
+        this.videoTexture = null;
+        this.createScene();
+    }
+
+    reset() {
+        this.dispose();
+        this.scene.clear();
+        this.volScene.clear();
+
+        this.circles = [];
+        this.createScene();
+    }
+
+    createScene() {
+        const numCircles = 10;
+
+        const geometry = new THREE.CircleGeometry(1, 16);
+        const geom2 = new THREE.RingGeometry(0.8, 1, 32, 1, 0);
+
+        this.material = sampleVideo();
+
+        this.material.uniforms.size.value = [this.width, this.height];
+        this.volMaterial = new THREE.MeshBasicMaterial({
+            blending: THREE.NoBlending,
+            opacity: 0.5,
+            color: new THREE.Color().setRGB(0, 0, 0),
+        });
+
+        const count = (numCircles - 2) * (numCircles - 4);
+
+        this.mesh = new THREE.InstancedMesh(geom2, this.material, count);
+        this.volMesh = new THREE.InstancedMesh(geometry, this.volMaterial, numCircles * numCircles - count);
+
+        let pos = new THREE.Object3D();
+        let num1 = 0;
+        let num2 = 0;
+
+        for (let i = 0; i < numCircles; i++) {
+            for (let j = 0; j < numCircles; j++) {
+                const centerX = (this.width / numCircles) * (j + 0.5) - this.width / 2;
+                const centerY = (this.height / numCircles) * (i + 0.5) - this.height / 2;
+                const size = Math.min(this.width, this.height) / 50;
+
+                pos.position.set(centerX, centerY, 0);
+                pos.scale.set(size, size, 1);
+                pos.updateMatrix();
+
+                if (i <= 1 || j <= 0 || i >= numCircles - 2 || j >= numCircles - 1) {
+                    this.volMesh.setMatrixAt(num2, pos.matrix);
+                    num2 += 1;
+                } else {
+                    this.mesh.setMatrixAt(num1, pos.matrix);
+                    num1 += 1;
+                }
+            }
+        }
+
+        this.scene.add(this.mesh);
+        this.scene.add(this.volMesh);
+    }
+
+    update(videoTexture: THREE.VideoTexture | null) {
+        this.material.uniforms.video.value = videoTexture;
+        this.material.uniforms.init.value = videoTexture ? false : true;
+    }
+
+    volumetrics(toggle: boolean) {
+        if (toggle) {
+            this.volScene.add(this.mesh);
+        } else {
+            this.scene.add(this.mesh);
+        }
+    }
+
+    dispose() {
+        this.mesh.geometry.dispose();
+        this.volMesh.geometry.dispose();
+        this.material?.dispose();
+        this.volMaterial?.dispose();
+    }
+}

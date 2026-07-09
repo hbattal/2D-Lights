@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>2D Lights</title>
+
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+
+    <body>
+        <canvas></canvas>
+
+        <div id="settingFlex">
+            <button id="hide">Hide Settings</button>
+            <div id="settings">
+                <!---->
+                <!--general settings here-->
+                <div class="row">
+                    <label>What is this?</label>
+                    <img src="help.svg" />
+                    <span class="tooltiptext">This website is a 2D light playground. The ligthing algorithm is called Holographic Radiance Cascades. More technical details are on the github page.</span>
+                    <a href="https://github.com/hbattal/2D-Lights">Source Code</a>
+                </div>
+
+                <div class="row">
+                    <label>Choose lighting</label>
+                    <select id="alg">
+                        <option value="hrc">HRC</option>
+                        <option value="rcb">RC + Bilinear</option>
+                        <option value="rc">RC</option>
+                        <option value="trace">Trace(64 spp)</option>
+                    </select>
+                    <img src="help.svg" />
+                    <span class="tooltiptext">Should stay HRC, previous lighting methods are just there to test.</span>
+                </div>
+
+                <div class="row">
+                    <label>Choose mode</label>
+                    <select id="mode">
+                        <option value="lyrics">Lyrics</option>
+                        <option value="video">Video</option>
+                        <option value="draw">Draw</option>
+                        <option value="balls">Balls</option>
+                        <option value="holes">Holes</option>
+                    </select>
+                    <img src="help.svg" />
+                    <span class="tooltiptext">Here you can switch between different modes, more to be added.</span>
+                </div>
+
+                <div class="row">
+                    <label>Choose sky</label>
+                    <select id="sky">
+                        <option value="none">None</option>
+                        <option value="rainbow">Rainbow</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <label id="video" for="upload1">Upload Video File</label>
+                    <label id="videoName" for="upload1">No file</label>
+                    <input id="upload1" type="file" accept="video/*" hidden />
+                    <img src="help.svg" />
+                    <span class="tooltiptext">Upload a video to start the light show. Some modes use a video texture as part of it. Everything stays on your device, no data is uploaded anywhere.</span>
+                </div>
+
+                <div class="row">
+                    <label id="audio" for="upload2">Upload Audio File</label>
+                    <label id="audioName" for="upload2">No file</label>
+                    <input id="upload2" type="file" accept="audio/*" hidden />
+                    <img src="help.svg" />
+                    <span class="tooltiptext">Upload an audio file with this naming convention for it to correctly work: songname-artist.mp3. Everything stays on your device, no data is uploaded anywhere.</span>
+                </div>
+
+                <button id="play">Play / Pause</button>
+
+                <div class="row">
+                    <label>Volume</label>
+                    <input id="videoVol" type="range" min="0" max="1" step="0.1" />
+                    <span class="rangeVal" id="vVolVal"></span>
+                </div>
+
+                <div class="row">
+                    <label>Fluence</label>
+                    <input id="fluence" type="range" min="0" max="2" step="0.1" />
+                    <span class="rangeVal" id="fluenceVal"></span>
+                </div>
+
+                <div class="row">
+                    <label>Resolution</label>
+                    <input id="res" type="range" min="128" max="4096" step="2" />
+                    <span class="rangeVal" id="resVal"></span>
+                    <img src="help.svg" />
+                    <span class="tooltiptext">Warning: Beware of setting this too high as it greatly impacts performance. This is the quality of the lighting (Resolution of the HRC grid). Higher means more quality but lower performance and vice versa. </span>
+                </div>
+
+                <div class="row">
+                    <label for="fps">FPS</label>
+                    <span id="fps"></span>
+                </div>
+
+                <!---->
+                <!--balls panel here-->
+                <div id="ballsPanel" class="panel">
+                    <div class="row">
+                        <label>Ball Mode Settings</label>
+                        <img src="help.svg" />
+                        <span class="tooltiptext">Bunch of bouncing balls, thats it. Looks really good with a video uploaded, large ball count and small sizes. I recommend using a video with flashy effects, edits, etc. </span>
+                    </div>
+
+                    <div class="row">
+                        <label>Ball Count</label>
+                        <input id="bc" type="number" />
+                    </div>
+                    <div class="row">
+                        <label>Min Speed</label>
+                        <input id="speed" type="range" min="0" max="7" step="0.1" />
+                        <span class="rangeVal" id="speedVal"></span>
+                    </div>
+                    <div class="row">
+                        <label>Size variation</label>
+                        <input id="sizeVar" type="range" min="1" max="20" step="0.1" />
+                        <span class="rangeVal" id="sizeVarVal"></span>
+                    </div>
+                    <div class="row">
+                        <label>Force</label>
+                        <input id="force" type="range" min="0" max="5" step="0.1" />
+                        <span class="rangeVal" id="forceVal"></span>
+                    </div>
+                    <div class="row">
+                        <label>Force Radius</label>
+                        <input id="forceRadius" type="range" min="0" max="200" step="1" />
+                        <span class="rangeVal" id="forceRadVal"></span>
+                    </div>
+
+                    <div class="row">
+                        <label>Choose material</label>
+                        <select id="mat">
+                            <option value="10">Video texture</option>
+                            <option value="0">Colors 1</option>
+                            <option value="1">Colors 2</option>
+                            <option value="2">Colors 3</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!---->
+                <!--video panel here-->
+                <div id="videoPanel" class="panel">
+                    <div class="row">
+                        <label>Video Mode Settings</label>
+                        <img src="help.svg" />
+                        <span class="tooltiptext">Upload an uncropped video (no black bars) as there needs to be color at the edges. I recommend using flashy videos, edits.</span>
+                    </div>
+                    <div class="row">
+                        <label>Video scale</label>
+                        <input id="videoScale" type="range" min="0" max="1" step="0.02" />
+                        <span class="rangeVal" id="vScaleVal"></span>
+                    </div>
+                    <div class="row">
+                        <label>Scenes</label>
+                        <select id="scenes">
+                            <option value="1">Vanilla</option>
+                            <option value="2">Volumetric circles</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!---->
+                <!--holes panel here-->
+                <div id="holesPanel" class="panel">
+                    <div class="row">
+                        <label>Holes Mode Settings</label>
+                        <img src="help.svg" />
+                        <span class="tooltiptext">Upload any video to start the show.</span>
+                    </div>
+                    <div class="row"></div>
+                </div>
+
+                <!---->
+                <!--lyrics panel here-->
+                <div id="lyricsPanel" class="panel">
+                    <div class="row">
+                        <label>Lyrics Mode Settings</label>
+                        <img src="help.svg" />
+                        <span class="tooltiptext">Upload a song file to display its lyrics.</span>
+                    </div>
+                    <div class="row">
+                        <label>Text scale</label>
+                        <input id="textScale" type="range" min="0" max="3" step="0.02" />
+                        <span class="rangeVal" id="tScaleVal"></span>
+                    </div>
+                </div>
+
+                <!---->
+                <!--draw panel here-->
+                <div id="drawPanel" class="panel">
+                    <div class="row">
+                        <label>Draw Mode Settings</label>
+                        <img src="help.svg" />
+                        <span class="tooltiptext">You can set the opacity (2nd slider) to 0 to use it as an eraser.</span>
+                    </div>
+                    <div class="row">
+                        <div id="picker"></div>
+                    </div>
+
+                    <div class="row">
+                        <label>Brush Size</label>
+                        <input id="brushSize" type="range" min="1" max="20" step="1" />
+                        <span class="rangeVal" id="bSizeVal"></span>
+                    </div>
+
+                    <div class="row">
+                        <button id="drawClear">Clear drawings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="module" src="src/state.js"></script>
+    </body>
+</html>
