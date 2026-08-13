@@ -19,15 +19,15 @@ A 2D light playground on the web. Sometime ago, I saw Lusion's light tracing [we
 
 2D Global Illumination via (Holographic) Radiance Cascades.
 
-The HRC impl is vanilla (as there have been more variations of it). With extensions and some other optimizations, performance is really favorable even with igpu's and thanks to extensions it has free volumetrics. The performance can defintely be improved, with MRTs where you can pack all 4 directions at once.
+The HRC impl is vanilla (as there have been more variations of it). With extensions and some other optimizations, performance is favorable even with igpu's. Even though it runs fast, the performance definitely can be further improved. Some ideas are using MRT's to pack all 4 directions at once and data packing. Also, volumetrics are free thanks to extensions, and they look pretty cool.
 
 The RC impl contains both direction major (pre averaged) and probe major. It relies on a DF produced by the JFA to skip empty space when tracing rays (no volumetrics).
 
-I also overlay non volumetric objects on top in full resolution as upscaling blurs things.
+In both implementations, the operations are done in a downscaled texture. This is a perfect way to optimize, as if you model the scene using completely opaque objects (neglecting transmission), you can rerender the objects in full res (without HRC) on top of the downscaled radiance texture. This way the objects stay high quality. You still upscale, but since the radiance field is smooth (I don't know the proper terminology for this), the quality loss is negligible.
 
 ## Gallery
 
-Will update
+[Arcane](https://www.youtube.com/watch?v=j-Ls8z5Ft2w)
 
 ## Credits
 

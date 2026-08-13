@@ -58,16 +58,16 @@ export class HRC {
         //I incorrectly assumed that this automatically happened, which it technically does but only for builtin (like meshbasic) materials
 
         //so rn hrc needs to convert linear color to srgb either via three js injections or manually
-        //so because of this whole thing there can be conflicts bceause im using built in material and shader materials at the same time
+        //so because of this whole thing there can be conflicts bceause im using builtin materials and shader materials at the same time
         //if outputspace is srgb video.texture.colorspace needs to be srgb bc mesh basic map samples srgb -> linear then output color space converts linear ->srgb BUT because now trace.ts gets linear I cant have manual srgb correction but this collides with text.ts
         //anyways current method is fine three js makes no conversions to anything eveything is assumed to be srgb going into trace.ts
-        //also who knew you had to specify texture colorspace idk why i assumed the would all be srgb (CAREFUL there is a difference between a color being srgb and how webgl reads and gives it you via sampler2D)
+        //also who knew you had to specify texture colorspace idk why i assumed they would all be srgb (CAREFUL there is a difference between a color being srgb and how webgl reads and gives it you via sampler2D)
 
         //https://threejs.org/manual/#en/color-management -> "Custom materials based on ShaderMaterial and RawShaderMaterial have to implement their own output color space conversion"
         //https://github.com/mrdoob/three.js/blob/dev/src/renderers/webgl/WebGLProgram.js -> shows what conversion is given to shaders
         //https://github.com/mrdoob/three.js/blob/dev/src/renderers/webgl/WebGLPrograms.js //s proves that there is no conversion in render targets
         //also one more thing I learned (line 259 in above file -> material.transparent === false && material.blending === NormalBlending)
-        //this was why I thought transparent = true was needed to alpha values to work, but actually you can just have blending rules diff to make them work
+        //this was why I thought transparent = true was needed to make alpha values work, but actually you can just have blending rules diff to make them work
         //a lot of the problems can be just solved by not relying on built in mats tbh but its ok. the more we know
 
         this.scene = new THREE.Scene();

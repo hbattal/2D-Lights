@@ -25,7 +25,7 @@ export function seed() {
             void main() {
                 //this is the shader that converts the input texture to a seed texture
                 //to calculate the nearest seed in the jfa phase, we need to know the location of the seed in the input texture
-                //so we are storing the coordinates in a texture, this creates a nice looking gradient
+                //so we are storing the coordinates in a texture
 
                 vec4 color = texture(scene, vUv);
 
