@@ -12,6 +12,8 @@ export function hrcTrace() {
 
             scene: { value: null },
             size: { value: null },
+
+            bounce: { value: null },
         },
         glslVersion: THREE.GLSL3,
         vertexShader: `
@@ -32,6 +34,8 @@ export function hrcTrace() {
 
             uniform sampler2D scene;
             uniform ivec2 size;
+
+            uniform sampler2D bounce;
 
             out vec4 fragColor;
 
@@ -95,9 +99,13 @@ export function hrcTrace() {
 
                     //whaaa? look later
 
-                    vec4 s = pow(texture(scene, rotate[frustum]), vec4(2.2));
-                    vec3 emiss = s.rgb;
-                    float absrp = s.a;
+                    vec4 s = texture(scene, rotate[frustum]);
+                    vec4 ss = pow(abs(s), vec4(2.2));
+
+                    vec3 emiss = ss.rgb;
+                    float absrp = ss.a;
+
+                    if(s.a < 0.0) emiss = texture(bounce, rotate[frustum]).rgb;
 
                     float tran = exp(-absrp * step); //eq2
                     vec3 rad = emiss * (1.0 - tran); //eq4 (no absrp div)

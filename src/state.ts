@@ -27,6 +27,7 @@ export class State {
     settings = {
         fluence: 0,
         resolution: 0,
+        bounce: true,
     };
 
     video = {

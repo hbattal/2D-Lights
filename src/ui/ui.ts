@@ -35,6 +35,8 @@ export class UI {
     resolution = document.getElementById("res") as HTMLInputElement;
     resVal = document.getElementById("resVal") as HTMLElement;
 
+    bounce = document.getElementById("bounce") as HTMLInputElement;
+
     ballsPanel = new BallsPanel();
     videoPanel = new VideoPanel();
     lyricsPanel = new LyricsPanel();
@@ -58,6 +60,8 @@ export class UI {
         ((svideo.volume = saudio.volume = 0.5), (this.volume.value = "0.5"));
         ((sett.fluence = 1), (this.fluence.value = "1"));
         ((sett.resolution = isMobile ? 800 : 1024), (this.resolution.value = isMobile ? "700" : "1024"));
+        this.bounce.checked = true;
+        sett.bounce = true;
 
         this.volumeValue.textContent = this.volume.value;
         this.fluenceVal.textContent = this.fluence.value;
@@ -130,6 +134,10 @@ export class UI {
             sett.resolution = +this.resolution.value;
             this.resVal.textContent = this.resolution.value;
             this.state.changeRes();
+        });
+
+        this.bounce.addEventListener("click", () => {
+            sett.bounce = this.bounce.checked;
         });
 
         //handles video files

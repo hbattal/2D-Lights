@@ -4,6 +4,7 @@ export function hrcSum() {
     return new THREE.ShaderMaterial({
         uniforms: {
             multiplier: { value: null },
+            flag: { value: null },
 
             f1: { value: null },
             f2: { value: null },
@@ -25,6 +26,7 @@ export function hrcSum() {
             in vec2 vUv;
 
             uniform float multiplier;
+            uniform bool flag;
 
             uniform sampler2D f1;
             uniform sampler2D f2;
@@ -45,6 +47,11 @@ export function hrcSum() {
                 rad += texture(f2, vec2(c.y, 1.0 - c.x) + vec2(offset.y, 0.0) );
                 rad += texture(f3, 1.0 - c + vec2(offset.x, 0.0) );
                 rad += texture(f4, vec2(1.0 - c.y, c.x) + vec2(offset.y, 0.0) );
+
+                if(flag) {
+                    fragColor = rad / TAU;
+                    return;
+                }
 
                 vec4 norm = rad / TAU * multiplier;
                 fragColor = vec4(pow(norm, vec4(1.0 / 2.2)));

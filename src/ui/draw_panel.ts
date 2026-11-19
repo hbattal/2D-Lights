@@ -27,11 +27,12 @@ export class DrawPanel {
 
     size = document.getElementById("brushSize") as HTMLInputElement;
     sizeValue = document.getElementById("bSizeVal") as HTMLElement;
+    matType = document.getElementById("matType") as HTMLInputElement;
     clear = document.getElementById("drawClear") as HTMLButtonElement;
     should = false;
 
     constructor() {
-        ((this.size.value = "4"), (this.sizeValue.textContent = this.size.value));
+        (((this.size.value = "4"), (this.sizeValue.textContent = this.size.value)), (this.matType.checked = true));
         this.size.addEventListener("input", () => {
             this.sizeValue.textContent = this.size.value;
         });
@@ -45,6 +46,7 @@ export class DrawPanel {
         const s = {
             color: this.colorPicker.color.rgb,
             alpha: this.colorPicker.color.alpha,
+            matType: this.matType.checked,
             size: +this.sizeValue.textContent,
             clear: this.should,
         };

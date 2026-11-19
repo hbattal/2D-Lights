@@ -11,7 +11,7 @@ A 2D light playground on the web. Sometime ago, I saw Lusion's light tracing [we
 - [x] Switch to TypeScript as a learning experience because it looks way better
 - [x] colorspace -> solved (https://threejs.org/manual/#en/color-management | https://discourse.threejs.org/t/updates-to-color-management-in-three-js-r152/50791)
 - [ ] Need a whole lot more modes
-- [ ] Light bounce
+- [x] Light bounce
 
 </details>
 
@@ -19,7 +19,7 @@ A 2D light playground on the web. Sometime ago, I saw Lusion's light tracing [we
 
 2D Global Illumination via (Holographic) Radiance Cascades.
 
-The HRC impl is vanilla (as there have been more variations of it). With extensions and some other optimizations, performance is favorable even with igpu's. Even though it runs fast, the performance definitely can be further improved. Some ideas are using MRT's to pack all 4 directions at once and data packing. Also, volumetrics are free thanks to extensions, and they look pretty cool.
+The HRC impl is vanilla (as there have been more variations of it). With extensions and some other optimizations, performance is favorable even with igpu's. Even though it runs fast, the performance definitely can be further improved. Some ideas are using MRT's to pack all 4 directions at once and data packing. Also, volumetrics are free thanks to extensions, and they look pretty cool. Since each pixel has the total incoming direct light after the first pass, the same pixel can be treated as a diffuse bounce emission in the next frame after multiplying by its albedo.
 
 The RC impl contains both direction major (pre averaged) and probe major. It relies on a DF produced by the JFA to skip empty space when tracing rays (no volumetrics).
 

@@ -5,6 +5,7 @@ import { hrcCones } from "./shaders/hrc/cones.js";
 import { hrcExtend } from "./shaders/hrc/extensions.js";
 import { hrcTrace } from "./shaders/hrc/trace.js";
 import { hrcSum } from "./shaders/hrc/sum.js";
+import { hrcBounce } from "./shaders/hrc/bounce.js";
 
 //https://www.typescriptlang.org/docs/handbook/2/classes.html
 export class HRC {
@@ -32,11 +33,13 @@ export class HRC {
     conesH: THREE.WebGLRenderTarget[];
     frustums: THREE.WebGLRenderTarget[];
     final: THREE.WebGLRenderTarget; //not needed rn
+    bounce: THREE.WebGLRenderTarget;
 
     traceShader: THREE.ShaderMaterial;
     extendShader: THREE.ShaderMaterial;
     coneShader: THREE.ShaderMaterial;
     sumShader: THREE.ShaderMaterial;
+    bounceShader: THREE.ShaderMaterial;
 
     displayMaterial: THREE.MeshBasicMaterial;
 
@@ -121,6 +124,7 @@ export class HRC {
         this.dispose(false);
 
         this.modelRT = new THREE.WebGLRenderTarget(this.fixWidth, this.fixHeight, nearestRT);
+        this.bounce = this.modelRT.clone();
 
         this.raysW = [];
         this.raysH = [];
@@ -168,7 +172,8 @@ export class HRC {
             if (i % 2 === 0) this.frustums.push(new THREE.WebGLRenderTarget(this.fixWidth, this.fixHeight / this.opt, linearRT));
             else this.frustums.push(new THREE.WebGLRenderTarget(this.fixHeight, this.fixWidth / this.opt, linearRT));
         }
-        // this.final = new THREE.WebGLRenderTarget(this.fixWidth, this.fixHeight, linearRT);
+
+        this.final = new THREE.WebGLRenderTarget(this.fixWidth, this.fixHeight, linearRT);
     }
 
     shaders() {
@@ -176,6 +181,7 @@ export class HRC {
         this.extendShader = hrcExtend();
         this.coneShader = hrcCones();
         this.sumShader = hrcSum();
+        this.bounceShader = hrcBounce();
 
         this.displayMaterial = new THREE.MeshBasicMaterial();
         this.geometry = new THREE.PlaneGeometry(2, 2);
@@ -205,6 +211,7 @@ export class HRC {
 
     dispose(all: boolean) {
         this.modelRT?.dispose();
+        this.bounce?.dispose();
 
         this.raysW?.forEach((target) => {
             target.dispose();
@@ -226,6 +233,8 @@ export class HRC {
             target.dispose();
         });
 
+        this.final?.dispose();
+
         if (!all) return;
 
         this.skyTex?.dispose();
@@ -236,6 +245,7 @@ export class HRC {
         this.extendShader.dispose();
         this.coneShader.dispose();
         this.sumShader.dispose();
+        this.bounceShader.dispose();
         this.displayMaterial.dispose();
 
         this.renderer.setAnimationLoop(null);
@@ -295,10 +305,12 @@ export class HRC {
             this.traceShader.uniforms.scene.value = this.modelRT.texture;
             this.traceShader.uniforms.size.value = [fw, fh];
 
+            this.traceShader.uniforms.bounce.value = this.state.settings.bounce ? this.bounce.texture : null;
+
             this.renderer.setRenderTarget(rays[0]);
             this.renderer.render(this.scene, this.camera);
 
-            /*for(let j = 0; j <= 2; ++j) { //remember to start from c3 below. Also this kills performance compared to c0 or c1starting
+            /*for(let j = 0; j <= 2; ++j) { //remember to start from c3 below. Also this kills performance compared to c0 or c1 starting
                 this.traceShader.uniforms.cascade.value = j;
 
                 this.renderer.setRenderTarget(rays[j]);
@@ -346,7 +358,9 @@ export class HRC {
         }
 
         this.mesh.material = this.sumShader;
+
         this.sumShader.uniforms.multiplier.value = this.state.settings.fluence;
+        this.sumShader.uniforms.flag.value = true;
 
         this.sumShader.uniforms.f1.value = this.frustums[0].texture;
         this.sumShader.uniforms.f2.value = this.frustums[1].texture;
@@ -354,13 +368,27 @@ export class HRC {
         this.sumShader.uniforms.f4.value = this.frustums[3].texture;
         this.sumShader.uniforms.size.value = [this.fixWidth, this.fixHeight];
 
-        //this.renderer.setRenderTarget(this.final);
-        //this.renderer.render(this.scene, this.camera);
+        this.renderer.setRenderTarget(this.final);
+        this.renderer.render(this.scene, this.camera);
+
+        if (this.state.settings.bounce) {
+            this.mesh.material = this.bounceShader;
+
+            this.bounceShader.uniforms.radiance.value = this.final.texture;
+            this.bounceShader.uniforms.world.value = this.modelRT.texture;
+            this.bounceShader.uniforms.size.value = [this.fixWidth, this.fixHeight];
+
+            this.renderer.setRenderTarget(this.bounce);
+            this.renderer.render(this.scene, this.camera);
+        }
 
         //this.mesh.material = this.displayMaterial;
         //this.displayMaterial.map = this.final.texture;
 
         //this.displayMaterial.map = this.frustums[0].texture;
+
+        this.mesh.material = this.sumShader;
+        this.sumShader.uniforms.flag.value = false;
 
         this.renderer.setRenderTarget(null);
         this.renderer.render(this.scene, this.camera);
