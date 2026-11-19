@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>2D Lights</title>
 
-      <script type="module" crossorigin src="/assets/index-DMwl4CQk.js"></script>
+      <script type="module" crossorigin src="/assets/index-DjgCq61m.js"></script>
       <link rel="stylesheet" crossorigin href="/assets/index-BawO3zIR.css">
     </head>
 
@@ -93,6 +93,11 @@
                     <span class="rangeVal" id="resVal"></span>
                     <img src="help.svg" />
                     <span class="tooltiptext">Warning: Beware of setting this too high as it greatly impacts performance. This is the quality of the lighting (Resolution of the HRC grid). Higher means more quality but lower performance and vice versa. </span>
+                </div>
+
+                <div class="row">
+                    <label for="bounce">Light Bounce</label>
+                    <input id="bounce" type="checkbox" />
                 </div>
 
                 <div class="row">
@@ -203,6 +208,11 @@
                     </div>
                     <div class="row">
                         <div id="picker"></div>
+                    </div>
+
+                    <div class="row">
+                        <label for="matType">Emissive (On) / Diffuse (Off) </label>
+                        <input id="matType" type="checkbox" />
                     </div>
 
                     <div class="row">
